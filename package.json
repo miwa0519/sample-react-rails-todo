@@ -1,0 +1,18 @@
+{
+  "name": "react-rails-todo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dc-setup": "npm run modules && npm run bundle",
+    "bundle": "docker-compose run back bundle install",
+    "modules": "docker-compose run front npm install",
+    "dc-start": "docker-compose up -d",
+    "db-setup": "docker-compose run back bundle exec rails db:migrate:reset && docker-compose run back bundle exec rails db:seed",
+    "start": "bundle exec foreman start",
+    "back": "docker-compose exec back bundle exec",
+    "front": "docker-compose exec front npm run"
+  },
+  "author": "",
+  "license": "ISC"
+}

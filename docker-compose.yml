@@ -1,0 +1,49 @@
+version: "3"
+services:
+  front:
+    build:
+      context: ./projects/sample-todo-frontend/
+      args:
+        - NODE_VERSION=$NODE_VERSION
+    command: npm run start
+    ports:
+      - "$FRONTEND_SERVER_PORT:3000"
+    environment:
+      - BACKEND_SERVER_PORT=$BACKEND_SERVER_PORT
+    volumes:
+      - ./projects/sample-todo-frontend/:/myapp/frontend
+      - sample_todo_modules:/sample_todo/modules
+    stdin_open: true
+  back:
+    build: ./projects/sample-todo-backend/
+    command: >
+      sh -c "rm -f tmp/pids/server.pid &&
+      bundle exec rails server -b 0.0.0.0"
+    volumes:
+      - ./projects/sample-todo-backend/:/myapp/backend
+      - sample_todo_bundle:/sample_todo/bundle
+    ports:
+      - "$BACKEND_SERVER_PORT:3000"
+    environment:
+      - BUNDLE_PATH=/sample_todo/bundle
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=$DOCKER_DATABASE_PORT
+      - DATABASE_USERNAME=$DOCKER_DATABASE_USERNAME
+      - DATABASE_PASSWORD=$DOCKER_DATABASE_PASSWORD
+    depends_on:
+      - postgres
+    tty: true
+    stdin_open: true
+  postgres:
+    image: postgres:9.6-alpine
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+    ports:
+      - "$DOCKER_DATABASE_PORT:5432"
+    environment:
+      - POSTGRES_USER=$DOCKER_DATABASE_USERNAME
+      - POSTGRES_PASSWORD=$DOCKER_DATABASE_PASSWORD
+volumes:
+  sample_todo_modules:
+  sample_todo_bundle:
+  postgresql-data:
